@@ -1,0 +1,25 @@
+{
+  "name": "attendance_managment_client",
+  "version": "1.0.0",
+  "description": "A modern, full-stack attendance management system built with React, TypeScript, Express.js, and Neon Database.",
+  "main": "db-connect.js",
+  "type": "module",
+  "scripts": {
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "db": "node scripts/db-connect.js",
+    "sql": "node scripts/run-sql.js",
+    "setup": "cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "concurrently": "^8.2.2",
+    "postgres": "^3.4.7"
+  }
+}
