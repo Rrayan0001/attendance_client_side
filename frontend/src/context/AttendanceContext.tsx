@@ -22,7 +22,7 @@ interface AttendanceContextType {
   loadStudents: () => Promise<void>;
   loadAttendance: (date: string) => Promise<void>;
   saveAttendance: () => Promise<void>;
-  addStudent: (name: string, email?: string, phone?: string) => Promise<void>;
+  addStudent: (name: string, email?: string, phone?: string, studentClass?: string, studentNumber?: string, password?: string, parentPhone?: string, parentEmail?: string, notes?: string) => Promise<void>;
   updateStudent: (id: string, updates: Partial<Student>) => Promise<void>;
   deleteStudent: (id: string) => Promise<void>;
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
@@ -126,12 +126,12 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
     }
   };
 
-  const addStudent = async (name: string, email?: string, phone?: string, studentClass?: string) => {
+  const addStudent = async (name: string, email?: string, phone?: string, studentClass?: string, studentNumber?: string, password?: string, parentPhone?: string, parentEmail?: string, notes?: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await db.addStudent(name, email, phone, studentClass);
+      const data = await db.addStudent(name, email, phone, studentClass, studentNumber, password, parentPhone, parentEmail, notes);
       setStudents(prev => [...prev, data[0]]);
       showToast(`${name} has been added successfully`, 'success');
     } catch (err) {

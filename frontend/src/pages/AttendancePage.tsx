@@ -4,6 +4,7 @@ import { Header } from '../components/Header';
 import { DateActions } from '../components/DateActions';
 import { StudentAttendanceList } from '../components/StudentAttendanceList';
 import { DailySummary } from '../components/DailySummary';
+import { Dashboard } from '../components/Dashboard';
 import { AttendanceHistory } from '../components/AttendanceHistory';
 import { ExportData } from '../components/ExportData';
 
@@ -24,10 +25,7 @@ export default function AttendancePage() {
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           {activeSection === 'dashboard' && (
             <div className="p-4 md:p-6">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Dashboard</h1>
-              <div className="bg-white rounded-lg shadow-sm p-6 md:p-8 text-center">
-                <p className="text-gray-600 text-sm md:text-base">Dashboard content coming soon...</p>
-              </div>
+              <Dashboard />
             </div>
           )}
 

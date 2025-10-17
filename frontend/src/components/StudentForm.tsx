@@ -5,20 +5,31 @@ interface StudentFormProps {
   onClose: () => void;
   student?: {
     id: string;
+    student_number: string;
     name: string;
     email?: string;
     phone?: string;
     class?: string;
+    password: string;
+    parent_phone?: string;
+    parent_email?: string;
+    notes?: string;
   };
+  generateStudentNumber?: () => string;
 }
 
-export const StudentForm: React.FC<StudentFormProps> = ({ onClose, student }) => {
+export const StudentForm: React.FC<StudentFormProps> = ({ onClose, student, generateStudentNumber }) => {
   const { addStudent, updateStudent } = useAttendance();
   const [formData, setFormData] = useState({
     name: student?.name || '',
     email: student?.email || '',
     phone: student?.phone || '',
-    studentClass: student?.class || ''
+    studentClass: student?.class || '',
+    studentNumber: student?.student_number || (generateStudentNumber ? generateStudentNumber() : ''),
+    password: student?.password || '',
+    parentPhone: student?.parent_phone || '',
+    parentEmail: student?.parent_email || '',
+    notes: student?.notes || ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,9 +42,29 @@ export const StudentForm: React.FC<StudentFormProps> = ({ onClose, student }) =>
 
     try {
       if (student) {
-        await updateStudent(student.id, formData);
+        await updateStudent(student.id, {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          class: formData.studentClass,
+          student_number: formData.studentNumber,
+          password: formData.password,
+          parent_phone: formData.parentPhone,
+          parent_email: formData.parentEmail,
+          notes: formData.notes
+        });
       } else {
-        await addStudent(formData.name, formData.email, formData.phone, formData.studentClass);
+        await addStudent(
+          formData.name, 
+          formData.email, 
+          formData.phone, 
+          formData.studentClass,
+          formData.studentNumber,
+          formData.password,
+          formData.parentPhone,
+          formData.parentEmail,
+          formData.notes
+        );
       }
       onClose();
     } catch (error) {
@@ -72,30 +103,43 @@ export const StudentForm: React.FC<StudentFormProps> = ({ onClose, student }) =>
               placeholder="Enter student name"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              Student Number *
             </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
-              placeholder="student@example.com"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={formData.studentNumber}
+                onChange={(e) => setFormData({ ...formData, studentNumber: e.target.value })}
+                className="flex-1 px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation font-mono"
+                required
+                placeholder="STU241234"
+              />
+              {!student && (
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, studentNumber: generateStudentNumber?.() || '' })}
+                  className="px-3 py-2.5 md:py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm"
+                >
+                  Generate
+                </button>
+              )}
+            </div>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone
+              Password *
             </label>
             <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
-              placeholder="Phone number"
+              required
+              placeholder="Student login password"
             />
           </div>
           
@@ -109,6 +153,77 @@ export const StudentForm: React.FC<StudentFormProps> = ({ onClose, student }) =>
               onChange={(e) => setFormData({ ...formData, studentClass: e.target.value })}
               placeholder="e.g., 10A, Grade 10, etc."
               className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Student Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
+              placeholder="student@example.com"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Student Phone
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
+              placeholder="Student phone number"
+            />
+          </div>
+
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Parent Information</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Parent Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.parentEmail}
+                  onChange={(e) => setFormData({ ...formData, parentEmail: e.target.value })}
+                  className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
+                  placeholder="parent@example.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Parent Phone
+                </label>
+                <input
+                  type="tel"
+                  value={formData.parentPhone}
+                  onChange={(e) => setFormData({ ...formData, parentPhone: e.target.value })}
+                  className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
+                  placeholder="Parent phone number"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notes
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-manipulation"
+              placeholder="Additional notes about the student"
+              rows={3}
             />
           </div>
           
