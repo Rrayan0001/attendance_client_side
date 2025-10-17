@@ -2,6 +2,11 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { db } from '../databaseClient';
 import { Student, Attendance, AttendanceStats } from '../types';
 
+interface ToastNotification {
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 interface AttendanceContextType {
   students: Student[];
   attendance: { [key: string]: boolean };
@@ -9,6 +14,7 @@ interface AttendanceContextType {
   attendanceStats: AttendanceStats | null;
   loading: boolean;
   error: string | null;
+  toast: ToastNotification | null;
   
   // Actions
   setSelectedDate: (date: string) => void;
@@ -19,6 +25,8 @@ interface AttendanceContextType {
   addStudent: (name: string, email?: string, phone?: string) => Promise<void>;
   updateStudent: (id: string, updates: Partial<Student>) => Promise<void>;
   deleteStudent: (id: string) => Promise<void>;
+  showToast: (message: string, type: 'success' | 'error' | 'info') => void;
+  hideToast: () => void;
 }
 
 const AttendanceContext = createContext<AttendanceContextType | undefined>(undefined);
@@ -42,6 +50,15 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
   const [attendanceStats, setAttendanceStats] = useState<AttendanceStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastNotification | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+  };
+
+  const hideToast = () => {
+    setToast(null);
+  };
 
   const loadStudents = async () => {
     try {
@@ -97,8 +114,13 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
 
       // Reload attendance to get updated stats
       await loadAttendance(selectedDate);
+      
+      // Show success toast
+      showToast('Your changes have been saved', 'success');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save attendance');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save attendance';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -111,8 +133,11 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
 
       const data = await db.addStudent(name, email, phone, studentClass);
       setStudents(prev => [...prev, data[0]]);
+      showToast(`${name} has been added successfully`, 'success');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add student');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to add student';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -127,8 +152,11 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
       setStudents(prev => prev.map(student => 
         student.id === id ? data[0] : student
       ));
+      showToast('Student updated successfully', 'success');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update student');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update student';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -141,8 +169,11 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
 
       await db.deleteStudent(id);
       setStudents(prev => prev.filter(student => student.id !== id));
+      showToast('Student deleted successfully', 'success');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete student');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to delete student';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -165,6 +196,7 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
     attendanceStats,
     loading,
     error,
+    toast,
     setSelectedDate,
     updateAttendance,
     loadStudents,
@@ -172,7 +204,9 @@ export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ children
     saveAttendance,
     addStudent,
     updateStudent,
-    deleteStudent
+    deleteStudent,
+    showToast,
+    hideToast
   };
 
   return (

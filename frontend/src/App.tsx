@@ -1,6 +1,26 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AttendanceProvider } from './context/AttendanceContext';
+import { AttendanceProvider, useAttendance } from './context/AttendanceContext';
 import AttendancePage from './pages/AttendancePage';
+import { Toast } from './components/Toast';
+
+function AppContent() {
+  const { toast, hideToast } = useAttendance();
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<AttendancePage />} />
+      </Routes>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      )}
+    </>
+  );
+}
 
 function App() {
   return (
@@ -11,9 +31,7 @@ function App() {
           v7_relativeSplatPath: true
         }}
       >
-        <Routes>
-          <Route path="/" element={<AttendancePage />} />
-        </Routes>
+        <AppContent />
       </BrowserRouter>
     </AttendanceProvider>
   );

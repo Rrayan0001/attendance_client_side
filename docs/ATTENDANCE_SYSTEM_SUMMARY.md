@@ -160,3 +160,4 @@ Your attendance management system is now:
 **Start the system with: `npm start`** 🚀
 
 **Access at: http://localhost:5173** 📱
+
